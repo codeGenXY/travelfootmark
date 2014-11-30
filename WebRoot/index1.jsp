@@ -1,11 +1,13 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@page import="org.franken.message.sql.SqlOperate"%>
+<%@page import="org.franken.message.sql.UserDomain"%>
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>微信墙</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="10">
 <!-- CSS -->
 <link rel="stylesheet" href="${pageContext.request.contextPath }/resource/bootstrap/css/bootstrap.min.css">
 <!-- HTML5 Shim 和 Respond.js 用于让 IE8 支持 HTML5元素和媒体查询 -->
@@ -83,87 +85,28 @@ body{
 			</div>
 		 </div>
 		 <div id="content" class="row" style="padding-top:10px;height:660px;overflow-y:hidden;">
-			<div id="contentin" class="col-md-12">
-				<div class="imglogo">
-					<img  style="width: 84px;height: 84px;" src="${pageContext.request.contextPath }/resource/img/myphoto.png"/>
-				</div>
-				<div class="coment" style="margin-left:100px;">
-					<div>
-						<div style="float:left;font-weight: bold;color: #51BAC1;">张三</div>
-						<div style="float:right;padding-right:20px;">2014-11-30 12:59:34</div>
-					</div>
-					<div style="color:#eb4141;font-size: 25px;font-weight: bold;padding-top:30px;padding-left:3px;">
-						1212131312`121212121<br/>
-						1212131341rerf252qtrfr<br/>
-					</div>
-				</div>
-			</div>
-			<div id="contentin" class="col-md-12">
-				<div class="imglogo">
-					<img  style="width: 84px;height: 84px;" src="${pageContext.request.contextPath }/resource/img/myphoto.png"/>
-				</div>
-				<div class="coment" style="margin-left:100px;">
-					<div>
-						<div style="float:left;font-weight: bold;color: #51BAC1;">张三</div>
-						<div style="float:right;padding-right:20px;">2014-11-30 12:59:34</div>
-					</div>
-					<div style="color:#eb4141;font-size: 25px;font-weight: bold;padding-top:30px;padding-left:3px;">
-						12121313<br/>
-						12121313<br/>
-					</div>
-				</div>
-			</div>
-			<div id="contentin" class="col-md-12">
-				<div class="imglogo">
-					<img  style="width: 84px;height: 84px;" src="${pageContext.request.contextPath }/resource/img/myphoto.png"/>
-				</div>
-				<div class="coment" style="margin-left:100px;">
-					<div>
-						<div style="float:left;font-weight: bold;color: #51BAC1;">张三</div>
-						<div style="float:right;padding-right:20px;">2014-11-30 12:59:34</div>
-					</div>
-					<div style="color:#eb4141;font-size: 25px;font-weight: bold;padding-top:30px;padding-left:3px;">
-						12121313<br/>
-						12121313<br/>
-					</div>
-				</div>
-			</div>
-			<div id="contentin" class="col-md-12">
-				<div class="imglogo">
-					<img  style="width: 84px;height: 84px;" src="${pageContext.request.contextPath }/resource/img/myphoto.png"/>
-				</div>
-				<div class="coment" style="margin-left:100px;">
-					<div>
-						<div style="float:left;font-weight: bold;color: #51BAC1;">张三</div>
-						<div style="float:right;padding-right:20px;">2014-11-30 12:59:34</div>
-					</div>
-					<div style="color:#eb4141;font-size: 25px;font-weight: bold;padding-top:30px;padding-left:3px;">
-						12121313<br/>
-						12121313<br/>
-						12121313<br/>
-						12121313<br/>
-						12121313<br/>
-					</div>
-				</div>
-			</div>
-			<div id="contentin" class="col-md-12">
-				<div class="imglogo">
-					<img  style="width: 84px;height: 84px;" src="${pageContext.request.contextPath }/resource/img/myphoto.png"/>
-				</div>
-				<div class="coment" style="margin-left:100px;">
-					<div>
-						<div style="float:left;font-weight: bold;color: #51BAC1;">张三</div>
-						<div style="float:right;padding-right:20px;">2014-11-30 12:59:34</div>
-					</div>
-					<div style="color:#eb4141;font-size: 25px;font-weight: bold;padding-top:30px;padding-left:3px;">
-						12121313<br/>
-						12121313<br/>
-						12121313<br/>
-						12121313<br/>
-						12121313<br/>
-					</div>
-				</div>
-			</div>
+			<%
+         		List<UserDomain> list=SqlOperate.readContent();
+         		Iterator<UserDomain> iterator=list.iterator();
+         		while(iterator.hasNext()){
+         		UserDomain domain=(UserDomain)iterator.next();
+         		out.print("<div id='contentin' class='col-md-12'>");
+         		if(domain.getHeadImageUrl() != null) {
+         		out.print("<div class='imglogo'>");
+         		out.print("<img style='width: 84px;height: 84px;' src="+domain.getHeadImageUrl()+"/>");
+         		out.print("</div>");
+         		}
+         		out.print("<div class='coment' style='margin-left:100px;'>");
+         		out.print("<div>");
+         		out.print("<div style='float:left;font-weight: bold;color: #51BAC1;'>"+domain.getUsername()+"</div>");
+         		out.print("</div>");
+         		out.print("<div style='color:#eb4141;font-size: 25px;font-weight: bold;padding-top:30px;padding-left:3px;'>");
+         		out.print(domain.getContent());
+         		out.print("</div>");
+         		out.print("</div>");
+         		out.print("</div>");
+         		}
+     		%>
 		 </div>
 	</div>
 </body>
