@@ -82,7 +82,7 @@ body{
 				</div>
 			</div>
 		 </div>
-		 <div id="content" class="row" style="padding-top:10px;height:660px;overflow-y:hidden;">
+		 <div id="content" class="row" style="padding-top:10px;height:560px;overflow-y:hidden;">
 			<div id="contentin" class="col-md-12">
 				<div class="imglogo">
 					<img  style="width: 84px;height: 84px;" src="${pageContext.request.contextPath }/resource/img/myphoto.png"/>
