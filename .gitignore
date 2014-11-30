@@ -41,3 +41,9 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+/.project
+/.settings
+/.classpath
+/WebRoot/WEB-INF/classes
+/.gitattributes
+/.gitignore
