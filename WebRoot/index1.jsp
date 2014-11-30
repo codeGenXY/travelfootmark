@@ -89,7 +89,7 @@ word-break: normal;
 				</div>
 			</div>
 		 </div>
-		 <div id="content" class="row" style="padding-top:10px;height:560px;overflow-y:hidden;">
+		 <div id="content" class="row" style="padding-top:10px;">
 			<div id="contentin" class="col-md-12">
 				<div class="imglogo">
 					<img  style="width: 84px;height: 84px;" src="${pageContext.request.contextPath }/resource/img/myphoto.png"/>
@@ -179,6 +179,7 @@ word-break: normal;
 <!-- 包括所有已编译的插件 -->
 <script src="${pageContext.request.contextPath }/resource/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript">
+/*
 	$(function(){
 		$("#content").hover(function () {
 		    $(this).css('overflow-y','auto');
@@ -187,5 +188,6 @@ word-break: normal;
 		    $(this).css('overflow-y','hidden');
 		  });
 	});
+	*/
 </script>
 </html>
