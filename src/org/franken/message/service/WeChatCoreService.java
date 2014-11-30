@@ -70,7 +70,6 @@ public class WeChatCoreService {
 				Runnable runnable = new Runnable() {
 					
 					public void run() {
-						// TODO Auto-generated method stub
 						User user = fetchUrl.getUser(fromUserName);
 						try {
 							if(user != null) {
@@ -188,7 +187,6 @@ public class WeChatCoreService {
 		Runnable runnable = new Runnable() {
 			
 			public void run() {
-				// TODO Auto-generated method stub
 				List<UserLatAndLgt> list = SqlOperate.readUserLatAndLgt();
 				if(list != null && list.size() > 0) {
 					for(UserLatAndLgt user : list) {
