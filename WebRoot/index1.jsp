@@ -63,6 +63,13 @@ body{
 .coment{
 	font-size:20px;
 }
+div{  
+/*
+	强制换行
+*/
+word-wrap: break-word;  
+word-break: normal;  
+} 
 </style>
 </head>
 <body>
