@@ -1,14 +1,12 @@
 package org.franken.fetchurl;
 
-import org.franken.message.util.TravelPropertiesUtil;
-
 public class GetStaticAccessToken {
 	//应用的id（微信公众平台上获取）
 	private static String appid = "wx15a17f9bd8702f70";
 	//应用的密码（微信公众平台上获取）
 	private static String appsecret = "5e3a32858229df7ebf5320421a690a20";
 	// 再次获取应用程序的access_token的时间间隔
-	private static final long SUB_TIME = (2 * 60 - 5) * 60 * 1000;
+//	private static final long SUB_TIME = (2 * 60 - 5) * 60 * 1000;
 	/**
 	 * 获取应用程序的access_token
 	 * @param appid 应用的id（微信公众平台上获取）

@@ -1,15 +1,12 @@
 package org.franken.message.service;
 
-import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.franken.baidu.map.api.AddressComponent;
-import org.franken.baidu.map.api.BaiduResult;
-import org.franken.baidu.map.api.Result;
 import org.franken.date.DateUtil;
 import org.franken.fetchurl.FetchUrl;
 import org.franken.log.LogMessage;
@@ -18,15 +15,10 @@ import org.franken.message.resq.TextMessage;
 import org.franken.message.sql.SqlOperate;
 import org.franken.message.sql.UserDomain;
 import org.franken.message.sql.UserLatAndLgt;
-import org.franken.message.sql.UserLocation;
 import org.franken.message.util.AndroidMessageUtil;
 import org.franken.message.util.MessageUtil;
-import org.franken.message.util.TravelPropertiesUtil;
+import org.franken.multithread.LocationTask;
 import org.franken.user.jsonutil.User;
-import org.franken.user.jsonutil.UserJsonUtil;
-
-import com.google.gson.reflect.TypeToken;
-import com.sina.sae.fetchurl.SaeFetchurl;
 
 /**
  * 核心服务类
@@ -35,14 +27,26 @@ import com.sina.sae.fetchurl.SaeFetchurl;
  */
 public class WeChatCoreService {
 
+	private static List<UserLatAndLgt> mLatLgts;
+	private static Thread mThread;
+	private static LocationTask mLocationTask;
 	/**
 	 * 处理微信发来的请求 
 	 * @param request
 	 * @return
 	 */
 	public static String processRequest(HttpServletRequest request){
+		if(mThread == null) {
+			mThread = new Thread(mLocationTask);
+			mThread.start();
+			try {
+				mThread.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		String respMessage = null; 
-		final FetchUrl fetchUrl = new FetchUrl();
 		try{
 			// 默认返回的文本消息内容  
 			String respContent = null;  
@@ -66,32 +70,8 @@ public class WeChatCoreService {
 			textMessage.setFuncFlag(0);
 			try{
 			if(msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_TEXT)){
-				final String content = requestMap.get("Content");
-				Runnable runnable = new Runnable() {
-					
-					public void run() {
-						User user = fetchUrl.getUser(fromUserName);
-						try {
-							if(user != null) {
-								UserDomain userDomain = new UserDomain();
-								userDomain.setUsername(user.getNickname());
-								userDomain.setContent(content);
-								userDomain.setHeadImageUrl(user.getHeadimgurl());
-								SqlOperate.writeContent(userDomain);
-								// 测试TravelPropertiesUtil文件读写
-								TravelPropertiesUtil util = TravelPropertiesUtil.getInstance();
-								userDomain.setContent(util.getCachedAccessToken());
-								userDomain.setHeadImageUrl(util.getLastCachedAccessTokenTime()+"");
-								SqlOperate.writeContent(userDomain);
-							}
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				};
-				Thread thread = new Thread(runnable);
-				thread.start();
+				String content = requestMap.get("Content");
+				doWriteContent(fromUserName, content);
 				respContent = "亲, 你发送的消息系统正在处理中……";
 			}else if(msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_VOICE)){
 				
@@ -150,13 +130,18 @@ public class WeChatCoreService {
 					uLatAndLgt.setLatitude(latitude);
 					uLatAndLgt.setLongtitude(longtitude);
 					uLatAndLgt.setPrecision(precision);
-					boolean flag = SqlOperate.writeUserLatAndLgt(uLatAndLgt);
-					if(flag) {
+					if(mLatLgts == null) {
+						mLatLgts = new ArrayList<UserLatAndLgt>();
+					}
+					boolean isAdd = mLatLgts.add(uLatAndLgt);
+					if(isAdd) {
 						respContent = "亲, 您的位置记录成功!";
 					} else {
 						respContent = "很抱歉, 您的位置暂时无法记录，请稍后重试!";
 					}
-					doLocation();
+					if(mLatLgts.size() >= 3) {
+						mThread.notify();
+					}
 				}
 				
 			}
@@ -173,82 +158,26 @@ public class WeChatCoreService {
 		return respMessage;
 	}
 	
-	private static boolean isEmptyStr(String str) {
-		if(str == null || "".equals(str)) {
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * 处理用户地理位置
-	 */
-	private static void doLocation() {
+	private static void doWriteContent(final String fromUserName, final String content) {
 		Runnable runnable = new Runnable() {
-			
 			public void run() {
-				List<UserLatAndLgt> list = SqlOperate.readUserLatAndLgt();
-				if(list != null && list.size() > 0) {
-					for(UserLatAndLgt user : list) {
-						String latitude = user.getLatitude();
-						String longtitude = user.getLongtitude();
-						if(isEmptyStr(latitude) || isEmptyStr(longtitude)) {
-							continue;
-						}
-						String url = "http://api.map.baidu.com/geocoder/v2/?"
-								+ "ak=E4805d16520de693a3fe707cdc962045&"
-								+ "callback=renderReverse&location="
-								+ latitude + ","
-								+ longtitude
-								+ "&output=json&pois=1";
-						SaeFetchurl sFetchurl = new SaeFetchurl();
-						String fetchData = sFetchurl.fetch(url);
-						fetchData = fetchData.replace("renderReverse&&renderReverse(", "");
-						fetchData = fetchData.replace(")", "");
-						UserJsonUtil uJsonUtil = new UserJsonUtil();
-						Type type = new TypeToken<BaiduResult>() {}.getType();
-						BaiduResult baiduResult = uJsonUtil.parseBaiduResult(fetchData, type);
-						if(baiduResult.getStatus() != 0) {
-							continue;
-						}
-						Result result = baiduResult.getResult();
-						String formatted_address = result.getFormattedAddress();
-						AddressComponent component = result.getAddressComponent();
-						String city = component.getCity();
-						String district = component.getDistrict();
-						String provice = component.getProvince();
-						String street = component.getStreet();
-							
-						UserLocation location = new UserLocation();
-						location.setUserId(user.getUserId());
-						location.setTime(user.getCreateTime());
-						location.setCountry("中国");
-						location.setProvince(provice);
-						location.setCity(city);
-						location.setDistrict(district);
-						location.setStreet(street);
-						location.setPlace(formatted_address);
-						try {
-							location.setPrecision(Double.parseDouble(user.getPrecision()));
-						} catch (Exception e) {
-							location.setPrecision(0);
-							e.printStackTrace();
-						}
-						location.setIsDelete(0);
-						location.setExtra1("");
-						location.setExtra2("");
-						try {
-							SqlOperate.writeUserLocation(location);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						SqlOperate.deleteUserLatAndLgt(user.getId());
+				FetchUrl fetchUrl = new FetchUrl();
+				User user = fetchUrl.getUser(fromUserName);
+				try {
+					if(user != null) {
+						UserDomain userDomain = new UserDomain();
+						userDomain.setUsername(user.getNickname());
+						userDomain.setContent(content);
+						userDomain.setHeadImageUrl(user.getHeadimgurl());
+						SqlOperate.writeContent(userDomain);
 					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				
 			}
 		};
+		
 		Thread thread = new Thread(runnable);
 		thread.start();
 	}
