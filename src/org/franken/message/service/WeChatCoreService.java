@@ -36,15 +36,11 @@ public class WeChatCoreService {
 	 * @return
 	 */
 	public static String processRequest(HttpServletRequest request){
+		if(mLocationTask == null) {
+			mLocationTask = new LocationTask();
+		}
 		if(mThread == null) {
 			mThread = new Thread(mLocationTask);
-			mThread.start();
-			try {
-				mThread.wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		String respMessage = null; 
 		try{
@@ -140,7 +136,13 @@ public class WeChatCoreService {
 						respContent = "很抱歉, 您的位置暂时无法记录，请稍后重试!";
 					}
 					if(mLatLgts.size() >= 3) {
-						mThread.notify();
+						mLocationTask.loadData(mLatLgts);
+						mLatLgts.clear();
+						if(mThread.isAlive()) {
+							mThread.run();
+						} else {
+							mThread.start();
+						}
 					}
 				}
 				

@@ -20,17 +20,16 @@ public class LocationTask implements Runnable{
 	private List<UserLatAndLgt> deleteList;
 	private List<UserLatAndLgt> mLatLgts;
 	
-	public LocationTask(List<UserLatAndLgt> list) {
-		this.mLatLgts = list;
+	public void loadData(List<UserLatAndLgt> list) {
+		mLatLgts = new ArrayList<UserLatAndLgt>();
+		mLatLgts.addAll(list);
+		
 	}
-	
 	/**
 	 * 处理用户地理位置
 	 */
 	public void run() {
-		// TODO Auto-generated method stub
 		if(mLatLgts != null && mLatLgts.size() > 0) {
-			deleteList = new ArrayList<UserLatAndLgt>();
 			for(UserLatAndLgt user : mLatLgts) {
 				String latitude = user.getLatitude();
 				String longtitude = user.getLongtitude();
