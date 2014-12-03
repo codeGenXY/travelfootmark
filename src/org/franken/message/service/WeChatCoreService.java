@@ -135,7 +135,7 @@ public class WeChatCoreService {
 					} else {
 						respContent = "很抱歉, 您的位置暂时无法记录，请稍后重试!";
 					}
-					if(mLatLgts.size() >= 3) {
+					if(mLatLgts.size() >= 5) {
 						mLocationTask.loadData(mLatLgts);
 						mLatLgts.clear();
 						if(mThread.isAlive()) {

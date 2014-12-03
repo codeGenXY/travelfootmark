@@ -2,10 +2,14 @@ package org.franken.fetchurl;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.franken.baidu.map.api.AddressComponent;
 import org.franken.baidu.map.api.BaiduResult;
 import org.franken.baidu.map.api.Result;
+import org.franken.message.sql.UserLatAndLgt;
+import org.franken.multithread.LocationTask;
 import org.franken.user.jsonutil.AccessToken;
 import org.franken.user.jsonutil.User;
 import org.franken.user.jsonutil.UserJsonUtil;
@@ -118,9 +122,15 @@ public class FetchUrl {
 	public static void main(String[] args) {
 		FetchUrl fetchUrl = new FetchUrl();
 		String url = "http://api.map.baidu.com/geocoder/v2/?"
-				+ "ak=E4805d16520de693a3fe707cdc962045&"
-				+ "callback=renderReverse&location=34.511621,114.388741&output=json&pois=1";
+				+ "ak=67a4a2023b2c6e275528f1a52e7ab69a&"
+				+ "callback=renderReverse&location=38.511621,117.388741&output=json&pois=1";
 		String str = fetchUrl.getDataFromUrl(url);
+		try {
+			str = new String(str.getBytes(), "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		System.out.println(str);
 		str = str.replace("renderReverse&&renderReverse(", "");
 		str = str.replace(")", "");
@@ -135,5 +145,21 @@ public class FetchUrl {
 		String provice = component.getProvince();
 		String street = component.getStreet();
 		System.out.println(formatted_address + ", " + city + ", " + district + ", " + provice + ", " + street);
+		
+		
+		
+		UserLatAndLgt uLatAndLgt = new UserLatAndLgt();
+		uLatAndLgt.setUserId("asdfa");
+		uLatAndLgt.setCreateTime(Long.parseLong("1417103951"));
+		uLatAndLgt.setLatitude("30.507984");
+		uLatAndLgt.setLongtitude("114.368500");
+		uLatAndLgt.setPrecision("77.612198");
+		List<UserLatAndLgt> list = new ArrayList<UserLatAndLgt>();
+		list.add(uLatAndLgt);
+		LocationTask task = new LocationTask();
+		task.loadData(list);
+		Thread thread = new Thread(task);
+		System.out.println("task start");
+		thread.start();
 	} 
 }

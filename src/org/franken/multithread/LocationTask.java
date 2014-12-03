@@ -17,19 +17,19 @@ import com.sina.sae.fetchurl.SaeFetchurl;
 
 public class LocationTask implements Runnable{
 
-	private List<UserLatAndLgt> deleteList;
-	private List<UserLatAndLgt> mLatLgts;
+	private List<UserLatAndLgt> mDeleteList = new ArrayList<UserLatAndLgt>();
+	private List<UserLatAndLgt> mLatLgts = new ArrayList<UserLatAndLgt>();
+	private int mRetryTimes = 0;
 	
 	public void loadData(List<UserLatAndLgt> list) {
-		mLatLgts = new ArrayList<UserLatAndLgt>();
 		mLatLgts.addAll(list);
-		
 	}
 	/**
 	 * 处理用户地理位置
 	 */
 	public void run() {
 		if(mLatLgts != null && mLatLgts.size() > 0) {
+			mRetryTimes++;
 			for(UserLatAndLgt user : mLatLgts) {
 				String latitude = user.getLatitude();
 				String longtitude = user.getLongtitude();
@@ -37,7 +37,7 @@ public class LocationTask implements Runnable{
 					continue;
 				}
 				String url = "http://api.map.baidu.com/geocoder/v2/?"
-						+ "ak=E4805d16520de693a3fe707cdc962045&"
+						+ "ak=67a4a2023b2c6e275528f1a52e7ab69a&"
 						+ "callback=renderReverse&location="
 						+ latitude + ","
 						+ longtitude
@@ -80,13 +80,18 @@ public class LocationTask implements Runnable{
 				location.setExtra2("");
 				try {
 					SqlOperate.writeUserLocation(location);
-					deleteList.add(user);
+					mDeleteList.add(user);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			mLatLgts.removeAll(deleteList);
+			mLatLgts.removeAll(mDeleteList);
+			mDeleteList.clear();
+			if(mRetryTimes > 3) {
+				mRetryTimes = 0;
+				return;
+			}
 			if(mLatLgts.size() > 0) {
 				run();
 			}
