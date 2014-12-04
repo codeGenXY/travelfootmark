@@ -1,6 +1,6 @@
 <%@page import="org.franken.message.sql.SqlOperate"%>
 <%@page import="org.franken.message.sql.UserDomain"%>
-<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <!DOCTYPE html>
 <html>
 <head>

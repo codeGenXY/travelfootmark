@@ -86,7 +86,7 @@ public class WeChatCoreServlet extends HttpServlet {
 		response.setCharacterEncoding("UTF-8");  
 		
 		// 调用核心业务类接收消息、处理消息  
-		String respMessage = WeChatCoreService.processRequest(request);  
+		String respMessage = WeChatCoreService.getInstance().processRequest(request);  
 
 		// 响应消息  
 		PrintWriter out = response.getWriter();  
