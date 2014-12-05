@@ -3,6 +3,7 @@ package org.franken.multithread;
 import org.franken.fetchurl.FetchUrl;
 import org.franken.message.sql.SqlOperate;
 import org.franken.message.sql.UserDomain;
+import org.franken.message.util.PropertiesUtil;
 import org.franken.user.jsonutil.User;
 
 public class WeXinQiangTask implements Runnable{
@@ -26,7 +27,15 @@ public class WeXinQiangTask implements Runnable{
 				userDomain.setContent(mContent);
 				userDomain.setHeadImageUrl(user.getHeadimgurl());
 				SqlOperate.writeContent(userDomain);
+				if("org.franken.test.geographic".equals(mContent)) {
+					PropertiesUtil util = new PropertiesUtil();
+					SqlOperate.writeContent(userDomain);
+					util.doParseGeographic();
+					SqlOperate.writeContent(userDomain);
+					return;
+				}
 			}
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

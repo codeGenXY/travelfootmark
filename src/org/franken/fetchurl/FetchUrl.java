@@ -1,15 +1,16 @@
 package org.franken.fetchurl;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.franken.baidu.map.api.AddressComponent;
 import org.franken.baidu.map.api.BaiduResult;
 import org.franken.baidu.map.api.Result;
-import org.franken.message.sql.UserLatAndLgt;
-import org.franken.multithread.LocationTask;
 import org.franken.user.jsonutil.AccessToken;
 import org.franken.user.jsonutil.User;
 import org.franken.user.jsonutil.UserJsonUtil;
@@ -120,10 +121,56 @@ public class FetchUrl {
 	}
 	
 	public static void main(String[] args) {
+//		doParseGeographic();
+	} 
+	
+	public static void doParseGeographic() {
+		String projectPath=System.getProperty("user.dir");
+		String propertiesPath=projectPath+File.separator+"files"+File.separator+"latandlgt.txt";
+		File file = new File(propertiesPath);
+		FileReader fReader = null;
+		BufferedReader buf = null;
+		Pattern pattern = Pattern.compile("[0-9]+.[0-9]+");
+		Matcher matcher;
+		try {
+			fReader = new FileReader(file);
+			buf = new BufferedReader(fReader);
+			String s;
+			while((s = buf.readLine()) != null) {
+				int i = 0;
+				String[] temp = new String[2];
+				matcher = pattern.matcher(s);
+				while(matcher.find()) {
+					temp[i] = matcher.group();
+					i++;
+				}
+				System.out.println("lgt:" + temp[0] + ", lat:" + temp[1]);
+				doGeographic(temp[0], temp[1]);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try{
+				if(fReader != null) {
+					fReader.close();
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	
+	public static void doGeographic(String lgt, String lat) {
 		FetchUrl fetchUrl = new FetchUrl();
 		String url = "http://api.map.baidu.com/geocoder/v2/?"
 				+ "ak=67a4a2023b2c6e275528f1a52e7ab69a&"
-				+ "callback=renderReverse&location=38.511621,117.388741&output=json&pois=1";
+				+ "callback=renderReverse&location="
+				+ lat
+				+ ","
+				+ lgt
+				+ "&output=json&pois=1";
 		String str = fetchUrl.getDataFromUrl(url);
 		try {
 			str = new String(str.getBytes(), "utf-8");
@@ -145,21 +192,5 @@ public class FetchUrl {
 		String provice = component.getProvince();
 		String street = component.getStreet();
 		System.out.println(formatted_address + ", " + city + ", " + district + ", " + provice + ", " + street);
-		
-		
-		
-		UserLatAndLgt uLatAndLgt = new UserLatAndLgt();
-		uLatAndLgt.setUserId("asdfa");
-		uLatAndLgt.setCreateTime(Long.parseLong("1417103951"));
-		uLatAndLgt.setLatitude("30.507984");
-		uLatAndLgt.setLongtitude("114.368500");
-		uLatAndLgt.setPrecision("77.612198");
-		List<UserLatAndLgt> list = new ArrayList<UserLatAndLgt>();
-		list.add(uLatAndLgt);
-		LocationTask task = new LocationTask();
-		task.loadData(list);
-		Thread thread = new Thread(task);
-		System.out.println("task start");
-		thread.start();
-	} 
+	}
 }
