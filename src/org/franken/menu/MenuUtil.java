@@ -55,7 +55,7 @@ public class MenuUtil {
 		UrlButton button23 = new UrlButton();
 		button23.setType("view");
 		button23.setName("微信墙");
-		button23.setUrl("http://wexinqiang.sinaapp.com/");
+		button23.setUrl("http://travelfootmark.sinaapp.com/");
 		
 		ClickButton button31 = new ClickButton();
 		button31.setType("click");
