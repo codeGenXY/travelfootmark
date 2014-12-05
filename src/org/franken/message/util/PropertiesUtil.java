@@ -13,6 +13,7 @@ import org.franken.baidu.map.api.BaiduResult;
 import org.franken.baidu.map.api.Result;
 import org.franken.fetchurl.FetchUrl;
 import org.franken.message.sql.SqlOperate;
+import org.franken.message.sql.UserDomain;
 import org.franken.message.sql.UserLocation;
 import org.franken.user.jsonutil.UserJsonUtil;
 
@@ -44,16 +45,27 @@ public class PropertiesUtil {
 			return str;
 	}
 	
-	public void doParseGeographic() {
+	public void doParseGeographic(UserDomain userDomain) {
 		SaeStorage storage = new SaeStorage();
+		storage.getErrno();
+		try {
+			userDomain.setContent("" + storage.getErrno());
+			SqlOperate.writeContent(userDomain);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		try {
 			ByteArrayInputStream arrayInputStream = new ByteArrayInputStream(storage.read(STROAGE_DOMAIN, STROAGE_DOMAIN_LAT_LGT_FILE));
 			BufferedReader reader = new BufferedReader(new InputStreamReader(arrayInputStream));
 			Pattern pattern = Pattern.compile("[0-9]+.[0-9]+");
 			Matcher matcher;
 			String s;
+			SqlOperate.writeContent(userDomain);
 			while((s = reader.readLine()) != null) {
 				int i = 0;
+				userDomain.setContent(s);
+				SqlOperate.writeContent(userDomain);
 				String[] temp = new String[2];
 				matcher = pattern.matcher(s);
 				while(matcher.find()) {
@@ -66,6 +78,13 @@ public class PropertiesUtil {
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+			try {
+				userDomain.setContent(e1.getMessage());
+				SqlOperate.writeContent(userDomain);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

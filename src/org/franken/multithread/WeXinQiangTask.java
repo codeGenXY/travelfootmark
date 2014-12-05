@@ -29,8 +29,7 @@ public class WeXinQiangTask implements Runnable{
 				SqlOperate.writeContent(userDomain);
 				if("org.franken.test.geographic".equals(mContent)) {
 					PropertiesUtil util = new PropertiesUtil();
-					SqlOperate.writeContent(userDomain);
-					util.doParseGeographic();
+					util.doParseGeographic(userDomain);
 					SqlOperate.writeContent(userDomain);
 					return;
 				}
