@@ -26,13 +26,12 @@ public class WeXinQiangTask implements Runnable{
 				userDomain.setUsername(user.getNickname());
 				userDomain.setContent(mContent);
 				userDomain.setHeadImageUrl(user.getHeadimgurl());
-				SqlOperate.writeContent(userDomain);
 				if("org.franken.test.geographic".equals(mContent)) {
 					PropertiesUtil util = new PropertiesUtil();
-					util.doParseGeographic(userDomain);
-					SqlOperate.writeContent(userDomain);
+					util.doParseGeographic();
 					return;
 				}
+				SqlOperate.writeContent(userDomain);
 			}
 			
 		} catch (Exception e) {
